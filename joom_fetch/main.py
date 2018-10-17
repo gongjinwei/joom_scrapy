@@ -1,20 +1,18 @@
 # -*- coding:UTF-8 -*-
 from scrapy.cmdline import execute
-from multiprocessing import Process
 
+from scrapy.utils.project import get_project_settings
+from scrapy.crawler import CrawlerProcess
+import os
 
-def run_scrapy():
-    # execute(['scrapy', 'crawl', 'wish'])
-    execute(['scrapy', 'crawl', 'joom'])
+os.chdir(os.path.dirname(__file__))
 
+process = CrawlerProcess(get_project_settings())
 
-if __name__ =='__main__':
+for _ in range(1):
+    process.crawl('joom')
 
-    processes =[]
-    for _ in range(4):
-        process=Process(target=run_scrapy)
-        process.start()
-        processes.append(process)
+process.start()
 
-    for process in processes:
-        process.join()
+# execute(['scrapy', 'crawl', 'wish'])
+# execute(['scrapy', 'crawl', 'joom'])

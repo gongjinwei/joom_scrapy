@@ -10,8 +10,9 @@ from fetch.models import ItemUrl
 
 client = redis.StrictRedis('122.226.65.250',18003)
 
-items = ItemUrl.objects.filter(state=0)
-items.update(state=1)
-for item in items:
-    client.lpush('joom:start_urls',pickle.dumps(item.url_str))
+
+ItemUrl.objects.filter(state=0).update(state=1)
+for item in ItemUrl.objects.filter(state=1).values('url_str'):
+    client.lpush('joom:start_urls',pickle.dumps(item['url_str']))
+
 
