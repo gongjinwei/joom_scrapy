@@ -65,7 +65,7 @@ class JoomSpider(RedisSpider):
         review_url = 'https://api.joom.com/1.1/products/%s/reviews/filters?currency=USD&language=en-US' % source_id
 
         yield scrapy.Request(review_url, headers=self.headers, callback=self.item_handle,
-                             meta={'r': r, 'item_url': item_url})
+                             meta={'r': r, 'item_url': item_url},dont_filter=True)
 
     def item_handle(self, response):
         item_url = response.meta.get('item_url')
