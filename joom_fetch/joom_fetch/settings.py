@@ -35,7 +35,7 @@ NEWSPIDER_MODULE = 'joom_fetch.spiders'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 30
+CONCURRENT_REQUESTS = 40
 
 # 控制台输出
 LOG_LEVEL='INFO'
