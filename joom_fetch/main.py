@@ -9,7 +9,7 @@ os.chdir(os.path.dirname(__file__))
 
 process = CrawlerProcess(get_project_settings())
 
-for _ in range(1):
+for _ in range(4):
     process.crawl('joom')
 
 process.start()
