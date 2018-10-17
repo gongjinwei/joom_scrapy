@@ -13,7 +13,8 @@ import os, sys
 
 import django
 
-sys.path.append('D:\code\joom_scrapy')
+django_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+sys.path.append(django_dir)
 os.environ['DJANGO_SETTINGS_MODULE']='joom_scrapy.settings'
 django.setup()
 
