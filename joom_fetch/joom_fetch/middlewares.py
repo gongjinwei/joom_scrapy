@@ -6,6 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy.exceptions import IgnoreRequest
 
 
 class JoomFetchSpiderMiddleware(object):
@@ -101,3 +102,12 @@ class JoomFetchDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class HandleHttp500Middleware(object):
+    handle_httpstatus_list=[]
+
+    def process_response(self, request, response, spider):
+        if response.status<300 or response.status in self.handle_httpstatus_list:
+            return response
+        raise IgnoreRequest

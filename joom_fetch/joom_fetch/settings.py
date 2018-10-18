@@ -38,7 +38,7 @@ ROBOTSTXT_OBEY = False
 CONCURRENT_REQUESTS = 40
 
 # 控制台输出
-LOG_LEVEL='INFO'
+# LOG_LEVEL='INFO'
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -70,9 +70,9 @@ LOG_LEVEL='INFO'
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'joom_fetch.middlewares.JoomFetchDownloaderMiddleware': 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+   'joom_fetch.middlewares.HandleHttp500Middleware': 543,
+}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -137,6 +137,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 # Store scraped item in redis for post-processing.
 ITEM_PIPELINES = {
     # 'scrapy_redis.pipelines.RedisPipeline': 300,
+    'joom_fetch.pipelines.MongoPipeline':400,
     'joom_fetch.pipelines.JoomFetchPipeline': 500,
 }
 
@@ -171,3 +172,6 @@ REDIS_PORT = 18003
 
 # Use other encoding than utf-8 for redis.
 #REDIS_ENCODING = 'latin1'
+
+MONGO_URI='mongodb://localhost:27017/'
+MONGO_DATABASE='wish'

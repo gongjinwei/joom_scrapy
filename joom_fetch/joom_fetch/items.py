@@ -14,3 +14,7 @@ class JoomFetchItem(DjangoItem):
     # define the fields for your item here like:
     # name = scrapy.Field()
     django_model = ItemLog
+
+
+class WishShopItem(scrapy.Item):
+    document = scrapy.Field()

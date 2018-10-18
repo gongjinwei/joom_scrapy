@@ -1,18 +1,24 @@
 # -*- coding:UTF-8 -*-
 from pymongo import MongoClient
 import datetime
-
-client = MongoClient()
-
-db = client.test_database
-
-collection = db.test_collection
-
-# post = {"author": "Mike",
+import requests
+# client = MongoClient()
+#
+# db = client.test_database
+#
+# collection = db.test_collection
+#
+# post = [{"author": "Mike",
 #        "text": "My first blog post!",
 #     "tags": ["mongodb", "python", "pymongo"],
-#       "date": datetime.datetime.utcnow()}
+#       "date": datetime.datetime.utcnow()},{'x':349,'_id':345}]
+# post2={'x':999,'_id':345}
 #
-# posts = collection.insert_one(post).inserted_id
+# collection.update()
 
-print(collection.find_one())
+# print(collection.find_one())
+
+r=requests.get('https://www.wish.com')
+cookiejar=r.cookies
+
+print()
