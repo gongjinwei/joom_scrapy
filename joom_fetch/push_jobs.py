@@ -1,6 +1,6 @@
 # -*- coding:UTF-8 -*-
 import os,sys
-import pickle,redis
+import redis
 import django
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -12,7 +12,7 @@ client = redis.StrictRedis('122.226.65.250',18003)
 
 
 ItemUrl.objects.filter(state=0).update(state=1)
-for item in ItemUrl.objects.filter(state=1).values('url_str'):
-    client.lpush('joom:start_urls',pickle.dumps(item['url_str']))
+for item in ItemUrl.objects.filter(state=1).values('url_str')[:10]:
+    client.lpush('joom:start_urls',item['url_str'])
 
 

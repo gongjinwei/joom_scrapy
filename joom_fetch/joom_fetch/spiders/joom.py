@@ -6,7 +6,8 @@ from decimal import Decimal
 from fetch.models import ItemSkuLog, JoomStore,ItemUrl
 from items import JoomFetchItem
 import requests
-import redis, pickle
+import redis
+from scrapy_redis.utils import bytes_to_str
 from scrapy_redis.spiders import RedisSpider
 
 client = redis.StrictRedis('122.226.65.250',18003)
@@ -22,7 +23,7 @@ class JoomSpider(RedisSpider):
         return super().start_requests()
 
     def make_request_from_data(self, data):
-        item_url = pickle.loads(data)
+        item_url = bytes_to_str(data)
         source_id = urlsplit(item_url).path.split('/')[-1]
         url = 'https://api.joom.com/1.1/products/%s?currency=USD&language=en-US' % source_id
         return scrapy.Request(url, headers=self.headers, meta={'item_url': item_url, 'source_id': source_id},
