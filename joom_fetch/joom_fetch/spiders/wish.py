@@ -15,7 +15,7 @@ client = StrictRedis('122.226.65.250', 18003)
 class WishSpider(RedisSpider):
     name = 'wish'
 
-    handle_httpstatus_list = [500,400]
+    handle_httpstatus_list = [500,400,504]
 
     def start_requests(self):
         self.get_authorization()
