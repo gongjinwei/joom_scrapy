@@ -51,11 +51,14 @@ class WishSpider(RedisSpider):
 
         if response.status == 500:
             client.delete('wish_authorization')
+            self.get_authorization()
             meta = {'query': store_id}
             if start:
                 meta.update({'start': start})
             return [
-                scrapy.Request('https://www.wish.com', callback=self.error_header_parse, meta=meta, dont_filter=True)]
+                scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
+                                   formdata=meta, headers=self.headers, cookies=self.cookies,
+                                   meta=response.meta, dont_filter=True)]
 
         elif response.status>300:
             WishShop.objects.filter(url='https://www.wish.com/merchant/'+store_id).update(state=3)
