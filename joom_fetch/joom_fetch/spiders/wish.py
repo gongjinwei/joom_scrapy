@@ -30,7 +30,7 @@ class WishSpider(RedisSpider):
             headers = {'X-XSRFToken': cookies['_xsrf']}
             self.headers = headers
             self.cookies = cookies
-            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}))
+            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}),3600*6)
 
         else:
             _auth = json.loads(authorization)
@@ -49,6 +49,7 @@ class WishSpider(RedisSpider):
         start = response.meta.get('start', '')
 
         if response.status == 500:
+            client.delete('wish_authorization')
             meta = {'query': store_id}
             if start:
                 meta.update({'start': start})
@@ -70,6 +71,7 @@ class WishSpider(RedisSpider):
         results = r['data']['results']
 
         for doc in filter(lambda x: x.get('is_new', False), results):
+        # for doc in results:
             item = WishShopItem()
             doc.update({'store_id': store_id})
             item['document'] = doc

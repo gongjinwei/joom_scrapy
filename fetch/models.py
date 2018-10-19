@@ -85,3 +85,18 @@ class JoomStore(models.Model):
 
     class Meta:
         db_table='joom_stroe'
+
+
+class WishShop(models.Model):
+    shop_id = models.IntegerField(blank=True, null=True)
+    title = models.CharField(max_length=300, blank=True, null=True)
+    url = models.CharField(max_length=200, blank=True, null=True)
+    createtime = models.IntegerField(blank=True, null=True)
+    modifytime = models.IntegerField(blank=True, null=True)
+    du_time = models.CharField(max_length=20, blank=True, null=True)
+    state = models.IntegerField(blank=True, null=True)
+    num = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'wish_shop'
