@@ -6,6 +6,7 @@ from json.decoder import JSONDecodeError
 from redis import StrictRedis
 from scrapy_redis.utils import bytes_to_str
 from scrapy_redis.spiders import RedisSpider
+from fetch.models import WishShop
 from items import WishShopItem
 
 client = StrictRedis('122.226.65.250', 18003)
@@ -14,7 +15,7 @@ client = StrictRedis('122.226.65.250', 18003)
 class WishSpider(RedisSpider):
     name = 'wish'
 
-    handle_httpstatus_list = [500]
+    handle_httpstatus_list = [500,400]
 
     def start_requests(self):
         self.get_authorization()
@@ -55,6 +56,10 @@ class WishSpider(RedisSpider):
                 meta.update({'start': start})
             return [
                 scrapy.Request('https://www.wish.com', callback=self.error_header_parse, meta=meta, dont_filter=True)]
+
+        elif response.status>300:
+            WishShop.objects.filter(url='https://www.wish.com/merchant/'+store_id).update(state=3)
+            return
 
         try:
             r = json.loads(response.body)
