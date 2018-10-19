@@ -173,5 +173,7 @@ REDIS_PORT = 18003
 # Use other encoding than utf-8 for redis.
 #REDIS_ENCODING = 'latin1'
 
+
+# mongodb://[username:password@]host[:port]
 MONGO_URI='mongodb://122.226.65.250:18017/'
 MONGO_DATABASE='wish'
