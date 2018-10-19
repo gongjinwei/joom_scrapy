@@ -43,7 +43,7 @@ class WishSpider(RedisSpider):
         source_id = urlsplit(item_url).path.split('/')[-1]
         return scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
                                   formdata={'query': source_id}, headers=self.headers, cookies=self.cookies,
-                                  meta={'query': source_id}, dont_filter=True)
+                                  meta={'query': source_id,'dont_retry':True}, dont_filter=True)
 
     def parse(self, response):
         store_id = response.meta.get('query')
@@ -65,10 +65,11 @@ class WishSpider(RedisSpider):
             r = json.loads(response.body)
         except JSONDecodeError:
             # 如果json解析错误则重新请求
+
             query = {'query': store_id}
             if start:
                 query.update({'start': start})
-            return [scrapy.FormRequest(response.url, callback=self.parse, formdata=query, meta=query,
+            return [scrapy.FormRequest(response.url, callback=self.parse, formdata=query, meta=response.meta,
                                        headers=response.request.headers, dont_filter=True)]
 
         next_offset = str(r['data']['next_offset'])
@@ -84,8 +85,9 @@ class WishSpider(RedisSpider):
 
         if not end_flag:
             formdata = {'query': store_id, 'start': next_offset}
+            response.meta.update({'start': next_offset})
             yield scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
-                                     formdata=formdata, headers=self.headers, meta=formdata, dont_filter=True)
+                                     formdata=formdata, headers=self.headers, meta=response.meta, dont_filter=True)
         else:
             WishShop.objects.filter(url='https://www.wish.com/merchant/' + store_id).update(state=2)
 
@@ -97,5 +99,5 @@ class WishSpider(RedisSpider):
         if start:
             formdata.update({'start': start})
         return [scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
-                                   formdata=formdata, headers=self.headers, cookies=self.cookies, meta=formdata,
+                                   formdata=formdata, headers=self.headers, cookies=self.cookies, meta=response.meta,
                                    dont_filter=True)]
