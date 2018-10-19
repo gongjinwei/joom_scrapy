@@ -30,7 +30,7 @@ class WishSpider(RedisSpider):
             headers = {'X-XSRFToken': cookies['_xsrf']}
             self.headers = headers
             self.cookies = cookies
-            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}),3600*6)
+            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}),3600*4)
 
         else:
             _auth = json.loads(authorization)
