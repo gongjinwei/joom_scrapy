@@ -86,6 +86,8 @@ class WishSpider(RedisSpider):
             formdata = {'query': store_id, 'start': next_offset}
             yield scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
                                      formdata=formdata, headers=self.headers, meta=formdata, dont_filter=True)
+        else:
+            WishShop.objects.filter(url='https://www.wish.com/merchant/' + store_id).update(state=2)
 
     def error_header_parse(self, response):
         self.get_authorization()
