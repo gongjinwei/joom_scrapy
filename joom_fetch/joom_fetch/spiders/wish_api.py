@@ -10,7 +10,7 @@ from scrapy_redis.spiders import RedisSpider
 client = StrictRedis('122.226.65.250', 18003)
 import pymongo
 
-mg = pymongo.MongoClient()
+mg = pymongo.MongoClient('122.226.65.250')
 db = mg.wish_api
 collection = db.test
 
