@@ -12,7 +12,8 @@ if os.getcwd()!=dirname:
 process = CrawlerProcess(get_project_settings())
 
 for _ in range(4):
-    process.crawl('wish')
+    # process.crawl('wish')
+    process.crawl('wish_api')
     # process.crawl('joom')
 
 process.start()

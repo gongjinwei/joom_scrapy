@@ -100,3 +100,23 @@ class WishShop(models.Model):
     class Meta:
         managed = False
         db_table = 'wish_shop'
+
+
+class Shop(models.Model):
+    shop_name = models.CharField(max_length=255)
+    platform_id = models.IntegerField(blank=True, null=True)
+    user_id = models.IntegerField(blank=True, null=True)
+    client_id = models.CharField(max_length=255, blank=True, null=True)
+    client_secret = models.CharField(max_length=255, blank=True, null=True)
+    create_time = models.IntegerField(blank=True, null=True)
+    status = models.IntegerField()
+    access_token = models.TextField(blank=True, null=True)
+    refresh_token = models.TextField(blank=True, null=True)
+    already = models.IntegerField(blank=True, null=True)
+    sync_time = models.IntegerField(blank=True, null=True)
+    down_url = models.CharField(max_length=255, blank=True, null=True)
+    job_id = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'shop'
