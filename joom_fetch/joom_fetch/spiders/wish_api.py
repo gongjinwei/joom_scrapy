@@ -46,7 +46,12 @@ class WishApiSpider(RedisSpider):
         data = r.get('data')
         if data:
             # 先处理data,判断是否有下一页
-            collection.insert_many([product['Product'] for product in data])
+            collect=[]
+            for product in data:
+                product.update({'shop_id':pk})
+                collect.append(product)
+
+            collection.insert_many(collect)
         next_page = r['paging'].get('next', '')
         if next_page:
             return [
