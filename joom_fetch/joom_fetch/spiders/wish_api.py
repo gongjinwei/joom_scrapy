@@ -13,7 +13,7 @@ import pymongo
 
 mg = pymongo.MongoClient('122.226.65.250', 18017)
 db = mg.wish_api
-collection = db.test
+collection = db.shop
 
 
 class WishApiSpider(RedisSpider):
