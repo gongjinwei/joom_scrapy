@@ -37,8 +37,9 @@ class WishApiSpider(RedisSpider):
         try:
             r = json.loads(response.body)
         except JSONDecodeError:
+            start=re.match('.*start=(.+?)&',response.url).group(1)
             return [
-                scrapy.Request('https://merchant.wish.com/api/v2/product/multi-get?start=0&limit=25&show_rejected=true',
+                scrapy.Request('https://merchant.wish.com/api/v2/product/multi-get?start=%s&limit=25&show_rejected=true' % start,
                                callback=self.parse, headers=response.request.headers, dont_filter=True,
                                meta=response.meta)]
         data = r.get('data')
