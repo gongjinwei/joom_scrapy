@@ -24,6 +24,11 @@ class WishSpider(RedisSpider):
     def get_authorization(self):
         authorization = client.get('wish_authorization')
         if not authorization:
+            # 配置取的状态
+            status=client.get('wish_auth_fetch_status')
+            if status==1:
+                return
+            client.set('wish_auth_fetch_status',1)
             init_url = 'https://www.wish.com'
 
             r = requests.get(init_url)
@@ -32,7 +37,7 @@ class WishSpider(RedisSpider):
             self.headers = headers
             self.cookies = cookies
             client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}))
-
+            client.set('wish_auth_fetch_status', 2)
         else:
             _auth = json.loads(authorization)
             self.cookies = _auth['cookies']
