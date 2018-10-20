@@ -12,7 +12,7 @@ import pymongo
 
 mg = pymongo.MongoClient('122.226.65.250', 18017)
 db = mg.wish_api
-collection = db.shop
+collection = db.shop2
 
 
 class WishApiSpider(RedisSpider):
@@ -53,9 +53,8 @@ class WishApiSpider(RedisSpider):
             collection.insert_many(collect)
         next_page = r['paging'].get('next', '')
         if next_page:
-            url = re.sub('(?<=limit=)\d+','50',next_page)
             return [
-                scrapy.Request(url, callback=self.parse, headers=response.request.headers, dont_filter=True,
+                scrapy.Request(next_page, callback=self.parse, headers=response.request.headers, dont_filter=True,
                                meta=response.meta)]
 
         else:
