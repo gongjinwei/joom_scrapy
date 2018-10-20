@@ -21,18 +21,19 @@ class WishApiSpider(RedisSpider):
     handle_httpstatus_list = [400]
 
     def make_request_from_data(self, data):
-        authorization = bytes_to_str(data)
+        merge_data = bytes_to_str(data)
+        pk,authorization = merge_data.split('+')
         headers = {
             'Authorization': "Bearer %s" % authorization
         }
         return scrapy.Request('https://merchant.wish.com/api/v2/product/multi-get?start=0&limit=50&show_rejected=true',
                               callback=self.parse,
-                              headers=headers, dont_filter=True, meta={'auth': authorization})
+                              headers=headers, dont_filter=True, meta={'pk':pk})
 
     def parse(self, response):
-        auth = response.meta.get('auth')
+        pk = int(response.meta['pk'])
         if response.status > 300:
-            Shop.objects.filter(access_token=auth).update(already=3)
+            Shop.objects.filter(pk=pk).update(already=3)
             return
         try:
             r = json.loads(response.body)
@@ -53,4 +54,4 @@ class WishApiSpider(RedisSpider):
                                    meta=response.meta)]
 
             else:
-                Shop.objects.filter(access_token=auth).update(already=2)
+                Shop.objects.filter(pk=pk).update(already=2)
