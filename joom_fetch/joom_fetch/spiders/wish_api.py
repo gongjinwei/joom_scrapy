@@ -33,7 +33,7 @@ class WishApiSpider(RedisSpider):
     def parse(self, response):
         pk = int(response.meta['pk'])
         if response.status > 300:
-            Shop.objects.filter(pk=pk).update(already=3)
+            Shop.objects.filter(pk=pk).update(status=3)
             return
         try:
             r = json.loads(response.body)
@@ -46,7 +46,7 @@ class WishApiSpider(RedisSpider):
         data = r.get('data')
         if data:
             # 先处理data,判断是否有下一页
-            collection.insert_many(data)
+            collection.insert_many([product['Product'] for product in data])
         next_page = r['paging'].get('next', '')
         if next_page:
             return [
@@ -54,4 +54,4 @@ class WishApiSpider(RedisSpider):
                                meta=response.meta)]
 
         else:
-            Shop.objects.filter(pk=pk).update(already=2)
+            Shop.objects.filter(pk=pk).update(status=2)

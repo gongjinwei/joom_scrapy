@@ -19,8 +19,8 @@ client = redis.StrictRedis('122.226.65.250',18003)
 # for url in WishShop.objects.filter(state=1).values('url'):
 #     client.lpush('wish:start_urls',url['url'])
 
-Shop.objects.filter(platform_id=9).update(already=1)
-for token in Shop.objects.filter(platform_id=9,already=1).values('access_token','id'):
+Shop.objects.filter(platform_id=9).update(status=1)
+for token in Shop.objects.filter(platform_id=9,status=1).values('access_token','id'):
     client.lpush('wish_api:start_urls', '%s+%s' %(token['id'],token['access_token']))
 
 
