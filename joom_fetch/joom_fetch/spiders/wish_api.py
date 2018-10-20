@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re, json, requests
-from urllib.parse import urlsplit
 from redis import StrictRedis
 from json.decoder import JSONDecodeError
 from scrapy_redis.utils import bytes_to_str
@@ -54,8 +53,9 @@ class WishApiSpider(RedisSpider):
             collection.insert_many(collect)
         next_page = r['paging'].get('next', '')
         if next_page:
+            url = re.sub('(?<=limit=)\d+','50',next_page)
             return [
-                scrapy.Request(next_page, callback=self.parse, headers=response.request.headers, dont_filter=True,
+                scrapy.Request(url, callback=self.parse, headers=response.request.headers, dont_filter=True,
                                meta=response.meta)]
 
         else:
