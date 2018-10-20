@@ -31,7 +31,7 @@ class WishSpider(RedisSpider):
             headers = {'X-XSRFToken': cookies['_xsrf']}
             self.headers = headers
             self.cookies = cookies
-            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}),3600*4)
+            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}))
 
         else:
             _auth = json.loads(authorization)
@@ -49,18 +49,18 @@ class WishSpider(RedisSpider):
         store_id = response.meta.get('query')
         start = response.meta.get('start', '')
 
-        if response.status == 500:
-            client.delete('wish_authorization')
-            self.get_authorization()
-            meta = {'query': store_id}
-            if start:
-                meta.update({'start': start})
-            return [
-                scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
-                                   formdata=meta, headers=self.headers, cookies=self.cookies,
-                                   meta=response.meta, dont_filter=True)]
+        # if response.status == 500:
+        #     client.delete('wish_authorization')
+        #     self.get_authorization()
+        #     meta = {'query': store_id}
+        #     if start:
+        #         meta.update({'start': start})
+        #     return [
+        #         scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
+        #                            formdata=meta, headers=self.headers, cookies=self.cookies,
+        #                            meta=response.meta, dont_filter=True)]
 
-        elif response.status>300:
+        if response.status>300:
             WishShop.objects.filter(url='https://www.wish.com/merchant/'+store_id).update(state=3)
             return
 

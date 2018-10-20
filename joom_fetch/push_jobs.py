@@ -15,7 +15,7 @@ client = redis.StrictRedis('122.226.65.250',18003)
 # for item in ItemUrl.objects.filter(state=1).values('url_str'):
 #     client.lpush('joom:start_urls',item['url_str'])
 WishShop.objects.filter(state__lt=3).update(state=1)
-for url in WishShop.objects.filter(state=1).values('url')[:10]:
+for url in WishShop.objects.filter(state=1).values('url'):
     client.lpush('wish:start_urls',url['url'])
 
 
