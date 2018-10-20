@@ -47,11 +47,11 @@ class WishApiSpider(RedisSpider):
         if data:
             # 先处理data,判断是否有下一页
             collection.insert_many(data)
-            next_page = r['paging'].get('next', '')
-            if next_page:
-                return [
-                    scrapy.Request(next_page, callback=self.parse, headers=response.request.headers, dont_filter=True,
-                                   meta=response.meta)]
+        next_page = r['paging'].get('next', '')
+        if next_page:
+            return [
+                scrapy.Request(next_page, callback=self.parse, headers=response.request.headers, dont_filter=True,
+                               meta=response.meta)]
 
-            else:
-                Shop.objects.filter(pk=pk).update(already=2)
+        else:
+            Shop.objects.filter(pk=pk).update(already=2)
