@@ -11,7 +11,7 @@ django.setup()
 
 from fetch.models import WishCrawlProduct,WishVariantItem
 
-for post in collection.find({'shop_id': 546})[100:]:
+for post in collection.find({}):
     # 保存产品
     product = WishCrawlProduct()
     product.goods_name = post['name']
@@ -31,22 +31,22 @@ for post in collection.find({'shop_id': 546})[100:]:
     product.shop_id = post['shop_id']
     product.save()
 
-    variants = post['variants']
-    # 保存变体信息
-    for v in variants:
-        variant=v['Variant']
-        item = WishVariantItem()
-        item.source_id=variant['product_id']
-        item.color =variant.get('color',None)
-        item.size = variant.get('size',None)
-        item.price = variant['price']
-        item.enabled=variant['enabled']
-        item.all_images=variant['all_images']
-        item.sku = variant['sku']
-        item.variantId=variant['id']
-        item.msrp = variant['msrp']
-        item.shippingPrice=variant['shipping']
-        item.shipping_time=variant['shipping_time']
-        item.save()
+    # variants = post['variants']
+    # # 保存变体信息
+    # for v in variants:
+    #     variant=v['Variant']
+    #     item = WishVariantItem()
+    #     item.source_id=variant['product_id']
+    #     item.color =variant.get('color',None)
+    #     item.size = variant.get('size',None)
+    #     item.price = variant['price']
+    #     item.enabled=variant['enabled']
+    #     item.all_images=variant['all_images']
+    #     item.sku = variant['sku']
+    #     item.variantId=variant['id']
+    #     item.msrp = variant['msrp']
+    #     item.shippingPrice=variant['shipping']
+    #     item.shipping_time=variant['shipping_time']
+    #     item.save()
 
 mg.close()
