@@ -120,3 +120,54 @@ class Shop(models.Model):
     class Meta:
         managed = False
         db_table = 'shop'
+
+
+class WishCrawlProduct(models.Model):
+    goods_name = models.CharField(max_length=1024)
+    price = models.DecimalField(max_digits=10, decimal_places=2,default=Decimal(0.00))
+    msrp = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.00))
+    sale_num = models.IntegerField(default=0)
+    default_img = models.CharField(max_length=255, blank=True, null=True)
+    list_img = models.TextField(blank=True, null=True)
+    introduce = models.TextField(blank=True, null=True)
+    score1 = models.IntegerField(default=0)
+    score2 = models.IntegerField(default=0)
+    score3 = models.IntegerField(default=0)
+    score4 = models.IntegerField(default=0)
+    score5 = models.IntegerField(default=0)
+    average_score = models.DecimalField(max_digits=10, decimal_places=1, default=Decimal(0.0))
+    cate = models.CharField(max_length=255,null=True)
+    source_id = models.CharField(max_length=255)
+    url = models.CharField(max_length=255)
+    create_time = models.IntegerField(null=True)
+    date_uploaded = models.DateField(null=True)
+    tags = JSONField(null=True, blank=True)
+    is_promoted = models.BooleanField(null=True,blank=True)
+    review_status= models.CharField(max_length=12,null=True,blank=True)
+    last_updated = models.DateTimeField(null=True)
+    parent_sku = models.CharField(max_length=50,null=True)
+    number_saves = models.IntegerField(null=True)
+    shop_id = models.IntegerField()
+
+    class Meta:
+        db_table = 'wish_crawl_product'
+
+
+class WishVariantItem(models.Model):
+    source_id = models.CharField(max_length=255, blank=True, null=True)
+    sub_sku = models.CharField(max_length=255, blank=True, null=True)
+    color = models.CharField(max_length=255, blank=True, null=True)
+    size = models.CharField(max_length=255, blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=1)
+    msrp = models.DecimalField(max_digits=10, decimal_places=1, default=Decimal(0.0))
+    main_image = models.CharField(max_length=255, blank=True, null=True)
+    create_time = models.IntegerField(blank=True, null=True)
+    sku = models.CharField(max_length=50, blank=True, null=True)
+    variantId = models.CharField(max_length=50, blank=True, null=True)
+    shippingPrice =models.DecimalField(max_digits=10, decimal_places=1)
+    shipping_time = models.CharField(max_length=40,null=True,blank=True)
+    all_images = models.TextField(null=True)
+    enabled = models.BooleanField(null=True)
+
+    class Meta:
+        db_table = 'wish_variant_item'

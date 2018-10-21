@@ -2,11 +2,11 @@
 from pymongo import MongoClient
 import datetime
 import requests
-# client = MongoClient()
-#
-# db = client.test_database
-#
-# collection = db.test_collection
+client = MongoClient()
+
+db = client.test_database
+
+collection = db.test_collection
 #
 # post = [{"author": "Mike",
 #        "text": "My first blog post!",
@@ -16,9 +16,4 @@ import requests
 #
 # collection.update()
 
-# print(collection.find_one())
-
-r=requests.get('https://www.wish.com')
-cookiejar=r.cookies
-
-print()
+print(collection.find_one({},'_id'))
