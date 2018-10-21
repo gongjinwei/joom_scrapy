@@ -11,7 +11,7 @@ django.setup()
 
 from fetch.models import WishCrawlProduct,WishVariantItem
 
-for post in collection.find({}):
+for post in collection.find().batch_size(1001):
     # 保存产品
     product = WishCrawlProduct()
     product.goods_name = post['name']
