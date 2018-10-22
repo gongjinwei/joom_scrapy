@@ -15,12 +15,12 @@ client = redis.StrictRedis('122.226.65.250',18003)
 # ItemUrl.objects.filter(state=0).update(state=1)
 # for item in ItemUrl.objects.filter(state=1).values('url_str'):
 #     client.lpush('joom:start_urls',item['url_str'])
-# WishShop.objects.filter(state__lt=3).update(state=1)
-# for url in WishShop.objects.filter(state=1).values('url'):
-#     client.lpush('wish:start_urls',url['url'])
-
-Shop.objects.filter(platform_id=9,status__lt=3).update(status=1)
-for token in Shop.objects.filter(platform_id=9,status=1).values('access_token','id'):
-    client.lpush('wish_api:start_urls', '%s+%s' %(token['id'],token['access_token']))
+WishShop.objects.filter(state__lt=3).update(state=1)
+for url in WishShop.objects.filter(state=1).values('url'):
+    client.lpush('wish:start_urls',url['url'])
+#
+# Shop.objects.filter(platform_id=9,status__lt=3).update(status=1)
+# for token in Shop.objects.filter(platform_id=9,status=1).values('access_token','id'):
+#     client.lpush('wish_api:start_urls', '%s+%s' %(token['id'],token['access_token']))
 
 

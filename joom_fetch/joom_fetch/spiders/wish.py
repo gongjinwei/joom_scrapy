@@ -8,13 +8,16 @@ from scrapy_redis.utils import bytes_to_str
 from scrapy_redis.spiders import RedisSpider
 from fetch.models import WishShop
 from items import WishShopItem
+from threading import Lock
 
 client = StrictRedis('122.226.65.250', 18003)
 
 
 class WishSpider(RedisSpider):
     name = 'wish'
-
+    header_status = 0
+    headers = None
+    cookies = None
     handle_httpstatus_list = [500,400,504]
 
     def start_requests(self):
@@ -22,26 +25,20 @@ class WishSpider(RedisSpider):
         return super().start_requests()
 
     def get_authorization(self):
-        authorization = client.get('wish_authorization')
-        if not authorization:
-            # 配置取的状态
-            status=client.get('wish_auth_fetch_status')
-            if status==1:
-                return
-            client.set('wish_auth_fetch_status',1)
-            init_url = 'https://www.wish.com'
 
+        # 配置取的状态
+        if self.header_status==1:
+            time.sleep(1)
+            return self.get_authorization()
+        elif self.header_status==0:
+            self.header_status=1
+            init_url = 'https://www.wish.com'
             r = requests.get(init_url)
             cookies = r.cookies.get_dict()
             headers = {'X-XSRFToken': cookies['_xsrf']}
             self.headers = headers
             self.cookies = cookies
-            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}))
-            client.set('wish_auth_fetch_status', 2)
-        else:
-            _auth = json.loads(authorization)
-            self.cookies = _auth['cookies']
-            self.headers = _auth['headers']
+            self.header_status=2
 
     def make_request_from_data(self, data):
         item_url = bytes_to_str(data)
@@ -54,16 +51,15 @@ class WishSpider(RedisSpider):
         store_id = response.meta.get('query')
         start = response.meta.get('start', '')
 
-        # if response.status == 500:
-        #     client.delete('wish_authorization')
-        #     self.get_authorization()
-        #     meta = {'query': store_id}
-        #     if start:
-        #         meta.update({'start': start})
-        #     return [
-        #         scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
-        #                            formdata=meta, headers=self.headers, cookies=self.cookies,
-        #                            meta=response.meta, dont_filter=True)]
+        if response.status == 500:
+            self.get_authorization()
+            meta = {'query': store_id}
+            if start:
+                meta.update({'start': start})
+            return [
+                scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
+                                   formdata=meta, headers=self.headers, cookies=self.cookies,
+                                   meta=response.meta, dont_filter=True)]
 
         if response.status>300:
             WishShop.objects.filter(url='https://www.wish.com/merchant/'+store_id).update(state=3)

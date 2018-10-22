@@ -108,3 +108,5 @@ class HandleHttp500Middleware(object):
     def process_response(self, request, response, spider):
         if response.status<300 or response.status in getattr(spider,'handle_httpstatus_list',[]):
             return response
+
+
