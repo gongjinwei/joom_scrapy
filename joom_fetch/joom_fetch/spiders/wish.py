@@ -26,8 +26,8 @@ class WishSpider(RedisSpider):
         if not authorization:
             # 配置取的状态
             status=client.get('wish_auth_fetch_status')
-            if status==1:
-                return
+            if not status:
+                return self.get_authorization()
             client.set('wish_auth_fetch_status',1)
             init_url = 'https://www.wish.com'
 
@@ -37,7 +37,7 @@ class WishSpider(RedisSpider):
             self.headers = headers
             self.cookies = cookies
             client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}))
-            client.set('wish_auth_fetch_status', 2)
+            client.delete('wish_auth_fetch_status')
         else:
             _auth = json.loads(authorization)
             self.cookies = _auth['cookies']
@@ -54,16 +54,16 @@ class WishSpider(RedisSpider):
         store_id = response.meta.get('query')
         start = response.meta.get('start', '')
 
-        # if response.status == 500:
-        #     client.delete('wish_authorization')
-        #     self.get_authorization()
-        #     meta = {'query': store_id}
-        #     if start:
-        #         meta.update({'start': start})
-        #     return [
-        #         scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
-        #                            formdata=meta, headers=self.headers, cookies=self.cookies,
-        #                            meta=response.meta, dont_filter=True)]
+        if response.status == 500:
+            client.delete('wish_authorization')
+            self.get_authorization()
+            meta = {'query': store_id}
+            if start:
+                meta.update({'start': start})
+            return [
+                scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
+                                   formdata=meta, headers=self.headers, cookies=self.cookies,
+                                   meta=response.meta, dont_filter=True)]
 
         if response.status>300:
             WishShop.objects.filter(url='https://www.wish.com/merchant/'+store_id).update(state=3)
