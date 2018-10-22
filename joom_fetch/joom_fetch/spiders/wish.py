@@ -1,6 +1,6 @@
 # -*- coding:UTF-8 -*-
 import scrapy
-import re, json, requests,time
+import re, json, requests,time,uuid
 from urllib.parse import urlsplit
 from json.decoder import JSONDecodeError
 from redis import StrictRedis
@@ -10,7 +10,7 @@ from fetch.models import WishShop
 from items import WishShopItem
 
 client = StrictRedis('122.226.65.250', 18003)
-
+mac = uuid.uuid1().hex[-12:]
 
 class WishSpider(RedisSpider):
     name = 'wish'
@@ -22,22 +22,17 @@ class WishSpider(RedisSpider):
         return super().start_requests()
 
     def get_authorization(self):
-        authorization = client.get('wish_authorization')
+        authorization = client.get('wish_authorization:%s' % mac)
         if not authorization:
             # 配置取的状态
-            status=client.get('wish_auth_fetch_status')
-            if not status:
-                return self.get_authorization()
-            client.set('wish_auth_fetch_status',1)
-            init_url = 'https://www.wish.com'
+            init_url = 'https://www.wish.com/product/5ad049662293182ed8e8baef'
 
-            r = requests.get(init_url)
+            r = requests.get(init_url,verify=False)
             cookies = r.cookies.get_dict()
             headers = {'X-XSRFToken': cookies['_xsrf']}
             self.headers = headers
             self.cookies = cookies
-            client.set('wish_authorization', json.dumps({'headers': headers, 'cookies': cookies}))
-            client.delete('wish_auth_fetch_status')
+            client.set('wish_authorization:%s' % mac, json.dumps({'headers': headers, 'cookies': cookies}))
         else:
             _auth = json.loads(authorization)
             self.cookies = _auth['cookies']
@@ -55,7 +50,7 @@ class WishSpider(RedisSpider):
         start = response.meta.get('start', '')
 
         if response.status == 500:
-            client.delete('wish_authorization')
+            client.delete('wish_authorization:%s' % mac)
             self.get_authorization()
             meta = {'query': store_id}
             if start:
