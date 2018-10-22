@@ -12,6 +12,7 @@ from items import WishShopItem
 client = StrictRedis('122.226.65.250', 18003)
 mac = uuid.uuid1().hex[-12:]
 
+
 class WishSpider(RedisSpider):
     name = 'wish'
 
@@ -26,8 +27,8 @@ class WishSpider(RedisSpider):
         if not authorization:
             # 配置取的状态
             init_url = 'https://www.wish.com/product/5ad049662293182ed8e8baef'
-
-            r = requests.get(init_url,verify=False)
+            s = requests.Session()
+            r = s.get(url=init_url,verify=False)
             cookies = r.cookies.get_dict()
             headers = {'X-XSRFToken': cookies['_xsrf']}
             self.headers = headers
@@ -49,19 +50,19 @@ class WishSpider(RedisSpider):
         store_id = response.meta.get('query')
         start = response.meta.get('start', '')
 
-        if response.status == 500:
-            client.delete('wish_authorization:%s' % mac)
-            self.get_authorization()
-            meta = {'query': store_id}
-            if start:
-                meta.update({'start': start})
-            return [
-                scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
-                                   formdata=meta, headers=self.headers, cookies=self.cookies,
-                                   meta=response.meta, dont_filter=True)]
+        # if response.status == 500:
+        #     client.delete('wish_authorization:%s' % mac)
+        #     self.get_authorization()
+        #     meta = {'query': store_id}
+        #     if start:
+        #         meta.update({'start': start})
+        #     return [
+        #         scrapy.FormRequest('https://www.wish.com/api/merchant', callback=self.parse,
+        #                            formdata=meta, headers=self.headers, cookies=self.cookies,
+        #                            meta=response.meta, dont_filter=True)]
 
         if response.status>300:
-            WishShop.objects.filter(url='https://www.wish.com/merchant/'+store_id).update(state=3)
+            WishShop.objects.filter(url='https://www.wish.com/merchant/'+store_id).update(state=response.status)
             return
 
         try:

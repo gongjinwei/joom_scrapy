@@ -13,7 +13,8 @@ process = CrawlerProcess(get_project_settings())
 
 process.crawl('wish')
 
-# for _ in range(1):
+# for _ in range(3):
+#     process.crawl('wish')
     # process.crawl('wish_api')
     # process.crawl('joom')
 
