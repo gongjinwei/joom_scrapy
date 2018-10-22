@@ -1,6 +1,6 @@
 # -*- coding:UTF-8 -*-
 import scrapy
-import re, json, requests
+import re, json, requests,time
 from urllib.parse import urlsplit
 from json.decoder import JSONDecodeError
 from redis import StrictRedis
@@ -87,7 +87,7 @@ class WishSpider(RedisSpider):
         for doc in filter(lambda x: x.get('is_new', False), results):
         # for doc in results:
             item = WishShopItem()
-            doc.update({'store_id': store_id})
+            doc.update({'store_id': store_id,'create_time':int(time.time())})
             item['document'] = doc
             yield item
 
