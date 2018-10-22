@@ -38,7 +38,7 @@ class WishSpider(RedisSpider):
             headers = {'X-XSRFToken': cookies['_xsrf']}
             self.headers = headers
             self.cookies = cookies
-            self.header_status=2
+            self.header_status=0
 
     def make_request_from_data(self, data):
         item_url = bytes_to_str(data)
