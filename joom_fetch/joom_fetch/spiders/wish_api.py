@@ -120,7 +120,10 @@ class WishApiSpider(RedisSpider):
             sku['shippingPrice'] = variant.get('shipping',0)
             sku['shipping_time'] = variant['shipping_time']
             sku['create_time'] = int(time.time())
-            sku.save()
+            try:
+                sku.save()
+            except:
+                pass
         min_variant = min(variants, key=lambda x: float(x['Variant']['price']))
         item_p['price'] = min_variant['Variant']['price']
         item_p['msrp'] = min_variant['Variant'].get('msrp', 0)
