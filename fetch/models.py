@@ -84,6 +84,7 @@ class JoomStore(models.Model):
     reviewsCount = models.IntegerField(null=True)
 
     class Meta:
+        managed = False
         db_table='joom_stroe'
 
 
@@ -123,34 +124,42 @@ class Shop(models.Model):
 
 
 class WishCrawlProduct(models.Model):
-    goods_name = models.CharField(max_length=1024)
+    goods_name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2,default=Decimal(0.00))
     msrp = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.00))
-    sale_num = models.IntegerField(default=0)
+    sale_num = models.IntegerField(blank=True, null=True)
     default_img = models.CharField(max_length=255, blank=True, null=True)
     list_img = models.TextField(blank=True, null=True)
     introduce = models.TextField(blank=True, null=True)
-    score1 = models.IntegerField(default=0)
-    score2 = models.IntegerField(default=0)
-    score3 = models.IntegerField(default=0)
-    score4 = models.IntegerField(default=0)
-    score5 = models.IntegerField(default=0)
-    average_score = models.DecimalField(max_digits=10, decimal_places=1, default=Decimal(0.0))
-    cate = models.CharField(max_length=255,null=True)
-    source_id = models.CharField(max_length=255)
+    score1 = models.IntegerField(blank=True, null=True)
+    score2 = models.IntegerField(blank=True, null=True)
+    score3 = models.IntegerField(blank=True, null=True)
+    score4 = models.IntegerField(blank=True, null=True)
+    score5 = models.IntegerField(blank=True, null=True)
+    average_score = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
+    cate = models.CharField(max_length=255)
+    parent_sku = models.CharField(max_length=50, null=True)
     url = models.CharField(max_length=255)
-    create_time = models.IntegerField(null=True)
-    date_uploaded = models.DateField(null=True)
-    tags = JSONField(null=True, blank=True)
-    is_promoted = models.BooleanField(null=True,blank=True)
-    review_status= models.CharField(max_length=12,null=True,blank=True)
-    last_updated = models.DateTimeField(null=True)
-    parent_sku = models.CharField(max_length=50,null=True)
-    number_saves = models.IntegerField(null=True)
+    create_time = models.IntegerField()
+    rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     shop_id = models.IntegerField()
+    source_id = models.CharField(max_length=255)
+    date_uploaded = models.DateField(null=True)
+    is_promoted = models.BooleanField(null=True, blank=True)
+    tags = JSONField(null=True, blank=True)
+    last_updated = models.DateTimeField(null=True)
+    number_saves = models.IntegerField(null=True)
+    shipping = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    weight = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    owner_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    review_status = models.CharField(max_length=10, blank=True, null=True)
+    py_sku = models.CharField(max_length=50, blank=True, null=True)
+    user_ids = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        db_table = 'wish_crawl_product'
+        # managed = False
+        db_table = 'wish_shop_item'
 
 
 class WishVariantItem(models.Model):
@@ -170,4 +179,19 @@ class WishVariantItem(models.Model):
     enabled = models.BooleanField(null=True)
 
     class Meta:
-        db_table = 'wish_variant_item'
+        managed = False
+        db_table = 'wish_shop_item_sku'
+
+
+class XiciProxy(models.Model):
+    ip = models.CharField(max_length=16)
+    port = models.IntegerField()
+    address = models.CharField(max_length=50,null=True)
+    protocol = models.CharField(max_length=5,default='http')
+    available = models.BooleanField(null=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    check_time = models.DateTimeField(null=True)
+    response_time = models.FloatField(null=True)
+
+    class Meta:
+        managed = False

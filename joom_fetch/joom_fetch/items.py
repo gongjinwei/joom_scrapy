@@ -6,7 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
-from fetch.models import ItemLog
+from fetch.models import ItemLog,XiciProxy
 from scrapy_djangoitem import DjangoItem
 
 
@@ -18,3 +18,7 @@ class JoomFetchItem(DjangoItem):
 
 class WishShopItem(scrapy.Item):
     document = scrapy.Field()
+
+
+class XiciItem(DjangoItem):
+    django_model = XiciProxy

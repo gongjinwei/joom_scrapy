@@ -43,7 +43,7 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-# DOWNLOAD_DELAY = 0.5
+DOWNLOAD_DELAY = 2
 
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
@@ -71,7 +71,7 @@ ROBOTSTXT_OBEY = False
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   'joom_fetch.middlewares.HandleHttp500Middleware': 543,
+   'joom_fetch.middlewares.HandleHttp500Middleware': 530,
 }
 
 # Enable or disable extensions
@@ -177,3 +177,5 @@ REDIS_PORT = 18003
 # mongodb://[username:password@]host[:port]
 MONGO_URI='mongodb://122.226.65.250:18017/'
 MONGO_DATABASE='wish'
+
+USER_AGENT="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
