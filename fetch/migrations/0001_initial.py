@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='ItemLog',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('goods_name', models.CharField(max_length=255)),
+                ('goods_name', models.CharField(max_length=1024)),
                 ('price', models.DecimalField(decimal_places=2, max_digits=10)),
                 ('msrp', models.DecimalField(decimal_places=2, default=Decimal('0'), max_digits=10)),
                 ('sale_num', models.IntegerField(default=0)),

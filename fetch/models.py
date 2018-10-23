@@ -124,19 +124,19 @@ class Shop(models.Model):
 
 
 class WishCrawlProduct(models.Model):
-    goods_name = models.CharField(max_length=255)
+    goods_name = models.CharField(max_length=1024)
     price = models.DecimalField(max_digits=10, decimal_places=2,default=Decimal(0.00))
     msrp = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.00))
     sale_num = models.IntegerField(blank=True, null=True)
     default_img = models.CharField(max_length=255, blank=True, null=True)
     list_img = models.TextField(blank=True, null=True)
     introduce = models.TextField(blank=True, null=True)
-    score1 = models.IntegerField(blank=True, null=True)
-    score2 = models.IntegerField(blank=True, null=True)
-    score3 = models.IntegerField(blank=True, null=True)
-    score4 = models.IntegerField(blank=True, null=True)
-    score5 = models.IntegerField(blank=True, null=True)
-    average_score = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
+    score1 = models.IntegerField(blank=True, null=True,default=0)
+    score2 = models.IntegerField(blank=True, null=True,default=0)
+    score3 = models.IntegerField(blank=True, null=True,default=0)
+    score4 = models.IntegerField(blank=True, null=True,default=0)
+    score5 = models.IntegerField(blank=True, null=True,default=0)
+    average_score = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True,default=Decimal(0.0))
     cate = models.CharField(max_length=255)
     parent_sku = models.CharField(max_length=50, null=True)
     url = models.CharField(max_length=255)
@@ -158,7 +158,7 @@ class WishCrawlProduct(models.Model):
     user_ids = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = 'wish_shop_item'
 
 

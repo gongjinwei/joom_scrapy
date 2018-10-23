@@ -1,5 +1,5 @@
 # -*- coding:UTF-8 -*-
-import pymongo, os, sys, django, datetime
+import pymongo, os, sys, django, datetime,time
 from multiprocessing import Process
 mg = pymongo.MongoClient('122.226.65.250', 18017)
 db = mg.wish_api
@@ -12,30 +12,35 @@ django.setup()
 from fetch.models import WishCrawlProduct,WishVariantItem
 
 
-print(collection.count_documents({}))
+# print(collection.count_documents({}))
 
 
-def hand_post(index_from,index_to):
-    for post in collection.find()[index_from:index_to]:
-        product = WishCrawlProduct()
-        product.goods_name = post['name']
-        product.sale_num = post['number_sold']
-        product.default_img = post.get('main_image', None)
-        product.list_img = post.get('extra_images', None)
-        product.introduce = post['description']
-        product.source_id = post['id']
-        product.url = 'https://www.wish.com/product/' + post['id']
-        product.date_uploaded = datetime.datetime.strptime(post['date_uploaded'], '%m-%d-%Y')
-        product.last_updated = datetime.datetime.strptime(post['last_updated'], '%m-%d-%YT%H:%M:%S')
-        product.tags = post['tags']
-        product.is_promoted = post['is_promoted']
-        product.review_status = post['review_status']
-        product.parent_sku = post['parent_sku']
-        product.number_saves = post['number_saves']
-        product.shop_id = post['shop_id']
-        product.save()
+# def hand_post(index_from,index_to):[index_from:index_to]
+for post in collection.find():
+    product = WishCrawlProduct()
+    product.goods_name = post['name']
+    product.sale_num = post['number_sold']
+    product.default_img = post.get('main_image', None)
+    product.list_img = post.get('extra_images', None)
+    product.introduce = post['description']
+    product.source_id = post['id']
+    product.url = 'https://www.wish.com/product/' + post['id']
+    product.date_uploaded = datetime.datetime.strptime(post['date_uploaded'], '%m-%d-%Y')
+    product.last_updated = datetime.datetime.strptime(post['last_updated'], '%m-%d-%YT%H:%M:%S')
+    product.tags = post['tags']
+    product.is_promoted = post['is_promoted']
+    product.review_status = post['review_status']
+    product.parent_sku = post['parent_sku']
+    product.number_saves = post['number_saves']
+    product.shop_id = post['shop_id']
+    product.create_time = int(time.time())
+    variants = post['variants']
+    min_variant=min(variants,key=lambda x:float(x['Variant']['price']))
+    product.price=min_variant['Variant']['price']
+    product.msrp = min_variant['Variant'].get('msrp',0)
+    product.save()
 
-    # variants = post['variants']
+
     # # 保存变体信息
     # for v in variants:
     #     variant=v['Variant']
