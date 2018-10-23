@@ -17,7 +17,6 @@ class JoomSpider(RedisSpider):
     name = "joom"
     handle_httpstatus_list = [404, 400, 401, 429, 500]
 
-
     def start_requests(self):
         self.get_authorization()
         return super().start_requests()

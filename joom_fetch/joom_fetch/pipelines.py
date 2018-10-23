@@ -10,7 +10,7 @@ import items
 
 class JoomFetchPipeline(object):
     def process_item(self, item, spider):
-        if isinstance(item,items.JoomFetchItem):
+        if isinstance(item,(items.JoomFetchItem,items.WishProductItem)):
             item.save()
         elif isinstance(item,items.XiciItem):
             items.XiciProxy.objects.update_or_create(**item,defaults={'ip':item['ip']})

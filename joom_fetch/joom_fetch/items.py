@@ -6,7 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
-from fetch.models import ItemLog,XiciProxy
+from fetch.models import ItemLog,XiciProxy,WishCrawlProduct,WishVariantItem
 from scrapy_djangoitem import DjangoItem
 
 
@@ -22,3 +22,11 @@ class WishShopItem(scrapy.Item):
 
 class XiciItem(DjangoItem):
     django_model = XiciProxy
+
+
+class WishProductItem(DjangoItem):
+    django_model = WishCrawlProduct
+
+
+class WishSkuItem(DjangoItem):
+    django_model = WishVariantItem

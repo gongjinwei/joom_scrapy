@@ -136,7 +136,7 @@ class WishCrawlProduct(models.Model):
     score3 = models.IntegerField(blank=True, null=True,default=0)
     score4 = models.IntegerField(blank=True, null=True,default=0)
     score5 = models.IntegerField(blank=True, null=True,default=0)
-    average_score = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True,default=Decimal(0.0))
+    average_score = models.DecimalField(max_digits=10, decimal_places=1,default=Decimal(5.0))
     cate = models.CharField(max_length=255)
     parent_sku = models.CharField(max_length=50, null=True)
     url = models.CharField(max_length=255)
