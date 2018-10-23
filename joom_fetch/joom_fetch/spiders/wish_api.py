@@ -48,14 +48,15 @@ class WishApiSpider(RedisSpider):
 
         for product in data:
             info = product['Product']
-            if info['number_sold']:
-                yield scrapy.FormRequest('https://www.wish.com/api/product-ratings/get',callback=self.item_handle,
-                                         formdata={"product_id": info['id'], "start": "0", "count": "1"},
-                                         headers={"X-XSRFToken": "2|a31a81d1|ecdbaffd4321ee34cec80bea937c1dc4|1539501583"},
-                                         cookies={"_xsrf": "2|a31a81d1|ecdbaffd4321ee34cec80bea937c1dc4|1539501583"},
-                                         dont_filter=True, meta={'dont_retry': True, 'info': info,'pk':pk})
-            else:
-                yield self.handle_product(info,pk)
+            yield self.handle_product(info, pk)
+
+            # if info['number_sold']:
+            #     yield scrapy.FormRequest('https://www.wish.com/api/product-ratings/get',callback=self.item_handle,
+            #                              formdata={"product_id": info['id'], "start": "0", "count": "1"},
+            #                              headers={"X-XSRFToken": "2|a31a81d1|ecdbaffd4321ee34cec80bea937c1dc4|1539501583"},
+            #                              cookies={"_xsrf": "2|a31a81d1|ecdbaffd4321ee34cec80bea937c1dc4|1539501583"},
+            #                              dont_filter=True, meta={'dont_retry': True, 'info': info,'pk':pk})
+            # else:
 
         next_page = r['paging'].get('next', '')
         if next_page:
@@ -116,7 +117,7 @@ class WishApiSpider(RedisSpider):
             sku['sku'] = variant['sku']
             sku['variantId'] = variant['id']
             sku['msrp'] = variant['msrp']
-            sku['shippingPrice'] = variant['shipping']
+            sku['shippingPrice'] = variant['shipping'] if variant['shipping'].isdecimal() else None
             sku['shipping_time'] = variant['shipping_time']
             sku['create_time'] = int(time.time())
             sku.save()
