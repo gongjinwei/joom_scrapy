@@ -87,7 +87,7 @@ class WishApiSpider(RedisSpider):
 
     def handle_product(self,info,pk):
         item_p = WishProductItem()
-        item_p['goods_name'] = info['name']
+        item_p['goods_name'] = info['name'][:255]
         item_p['sale_num'] = info['number_sold']
         item_p['default_img'] = info.get('main_image', None)
         item_p['list_img'] = info.get('extra_images', None)
