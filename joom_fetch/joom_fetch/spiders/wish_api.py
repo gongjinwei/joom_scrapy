@@ -117,7 +117,7 @@ class WishApiSpider(RedisSpider):
             sku['sku'] = variant['sku']
             sku['variantId'] = variant['id']
             sku['msrp'] = variant['msrp']
-            sku['shippingPrice'] = variant['shipping'] if variant['shipping'].isdecimal() else None
+            sku['shippingPrice'] = variant.get('shipping',0)
             sku['shipping_time'] = variant['shipping_time']
             sku['create_time'] = int(time.time())
             sku.save()
