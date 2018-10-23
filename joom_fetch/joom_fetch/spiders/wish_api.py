@@ -116,7 +116,7 @@ class WishApiSpider(RedisSpider):
             sku['all_images'] = variant['all_images']
             sku['sku'] = variant['sku']
             sku['variantId'] = variant['id']
-            sku['msrp'] = variant['msrp']
+            sku['msrp'] = variant.get('msrp',0)
             sku['shippingPrice'] = variant.get('shipping',0)
             sku['shipping_time'] = variant['shipping_time']
             sku['create_time'] = int(time.time())
