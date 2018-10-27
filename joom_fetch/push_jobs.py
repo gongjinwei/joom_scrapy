@@ -12,9 +12,9 @@ from fetch.models import ItemUrl,WishShop,Shop,WishCrawlProduct
 client = redis.StrictRedis('122.226.65.250',18003)
 
 #
-ItemUrl.objects.filter(state=0).update(state=1)
-for item in ItemUrl.objects.filter(state=1).values('url_str'):
-    client.lpush('joom:start_urls',item['url_str'])
+# ItemUrl.objects.filter(state=0).update(state=1)
+# for item in ItemUrl.objects.filter(state=1).values('url_str'):
+#     client.lpush('joom:start_urls',item['url_str'])
 # WishShop.objects.filter(state__lt=600).update(state=1)
 # for url in WishShop.objects.filter(state=1).values('url'):
 #     client.lpush('wish:start_urls',url['url'])
@@ -26,3 +26,6 @@ for item in ItemUrl.objects.filter(state=1).values('url_str'):
 #
 # for wish_product in WishCrawlProduct.objects.all():
 #     client.lpush('wish_rating:start_urls',wish_product.source_id)
+
+y=set([x['shop_id'] for x in WishShop.objects.values('shop_id')])
+print(y)
