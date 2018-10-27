@@ -1,0 +1,120 @@
+# -*- coding:UTF-8 -*-
+
+import pymongo
+from twisted.enterprise import adbapi
+from twisted.internet import reactor
+from MySQLdb.cursors import DictCursor
+import datetime, time, json
+from decimal import Decimal
+
+dbparams = dict(
+    host='122.226.65.250',
+    db='cjdn_newyiliao',
+    user='cjdn_newyiliao',
+    passwd='GPnGmibX6QGGzbDA',
+    port=39306,
+    charset='utf8mb4',
+    cursorclass=DictCursor,
+    use_unicode=True)
+dbpool = adbapi.ConnectionPool('MySQLdb', **dbparams)
+dbpool.start()
+
+
+class WishPipeline(object):
+
+    def process_item(self, item):
+        query = dbpool.runInteraction(self.do_insert, item)
+
+        query.addErrback(self.handle_error, item)
+        return query
+
+    def do_insert(self, cursor, item):
+        insert_sql, params = item.get_insert_sql()
+        cursor.execute(insert_sql, params)
+
+    def handle_error(self, failure, item):
+        '''
+        处理异步插入数据库错误
+        :param failure:
+        :return:
+        '''
+        print(failure, item)
+
+
+wish_pipeline = WishPipeline()
+
+mg = pymongo.MongoClient('122.226.65.250', 18017)
+db = mg.wish_api
+collection = db.shop3
+
+
+class Item(dict):
+    table_name = ''
+
+    def get_insert_sql(self):
+        insert_sql = """
+                Insert INTO %s(%s)
+                VALUES ({0})
+                """ % (self.table_name, ','.join(self.keys()))
+        params = (self[i] for i in self)
+        return insert_sql.format(','.join(['%s'] * len(self))), params
+
+
+class WishItem(Item):
+    table_name = 'wish_shop_item'
+
+
+class WishSkuItem(Item):
+    table_name = 'wish_shop_item_sku'
+
+
+def process_info(info):
+    item_p = WishItem()
+    item_p['goods_name'] = info['name'][:255]
+    item_p['sale_num'] = int(info['number_sold'])
+    item_p['default_img'] = info.get('main_image', None)
+    item_p['list_img'] = info.get('extra_images', None)
+    item_p['introduce'] = info['description']
+    item_p['source_id'] = info['id']
+    item_p['url'] = 'https://www.wish.com/product/' + info['id']
+    item_p['date_uploaded'] = datetime.datetime.strptime(info['date_uploaded'], '%m-%d-%Y')
+    item_p['last_updated'] = datetime.datetime.strptime(info['last_updated'], '%m-%d-%YT%H:%M:%S')
+    item_p['tags'] = json.dumps(info['tags'])
+    item_p['parent_sku'] = info['parent_sku']
+    item_p['is_promoted'] = bool(info['is_promoted'])
+    item_p['review_status'] = info['review_status']
+    item_p['number_saves'] = info['number_saves']
+    item_p['shop_id'] = info['shop_id']
+    item_p['create_time'] = int(time.time())
+    variants = info['variants']
+    item_p['enabled'] = any(filter(lambda x: x['Variant']['enabled'] == 'True', variants))
+    min_variant = min(variants, key=lambda x: float(x['Variant']['price']))
+    item_p['price'] = Decimal(min_variant['Variant']['price']).quantize(Decimal('.01'))
+    item_p['msrp'] = Decimal(min_variant['Variant'].get('msrp', 0)).quantize(Decimal('.1'))
+    for v in variants:
+        variant = v['Variant']
+        sku = WishSkuItem()
+        sku['source_id'] = info['id']
+        sku['color'] = variant.get('color', None)
+        sku['size'] = variant.get('size', None)
+        sku['price'] = Decimal(variant['price']).quantize(Decimal('.01'))
+        sku['enabled'] = bool(variant['enabled'])
+        sku['all_images'] = variant['all_images']
+        sku['sku'] = variant['sku']
+        sku['variantId'] = variant['id']
+        sku['msrp'] = Decimal(variant.get('msrp', 0)).quantize(Decimal('.01'))
+        shipping=variant.get('shipping', '').strip()
+        sku['shippingPrice'] = Decimal(shipping if shipping else 0).quantize(Decimal('.01'))
+        sku['shipping_time'] = variant['shipping_time']
+        sku['create_time'] = int(time.time())
+        wish_pipeline.process_item(sku)
+    return item_p
+
+
+if __name__ == '__main__':
+    for info in collection.find({})[:10000]:
+        item = process_info(info)
+        wish_pipeline.process_item(item)
+    dbpool.close()
+    mg.close()
+    # reactor.run()

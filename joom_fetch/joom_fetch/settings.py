@@ -35,7 +35,7 @@ NEWSPIDER_MODULE = 'joom_fetch.spiders'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-# CONCURRENT_REQUESTS = 10
+# CONCURRENT_REQUESTS = 1
 
 # 控制台输出
 LOG_LEVEL='INFO'
@@ -43,7 +43,7 @@ LOG_LEVEL='INFO'
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-# DOWNLOAD_DELAY = 2
+# DOWNLOAD_DELAY = 3
 
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
@@ -64,14 +64,18 @@ LOG_LEVEL='INFO'
 
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
-#    'joom_fetch.middlewares.JoomFetchSpiderMiddleware': 543,
-#}
+# SPIDER_MIDDLEWARES = {
+# #   'joom_fetch.middlewares.JoomFetchSpiderMiddleware': 543,
+#     'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+# }
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    'joom_fetch.middlewares.HandleHttp500Middleware': 530,
+    # 'scrapy_splash.SplashCookiesMiddleware': 723,
+    # 'scrapy_splash.SplashMiddleware': 725,
+    # 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
 }
 
 # Enable or disable extensions
@@ -138,7 +142,8 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 ITEM_PIPELINES = {
     # 'scrapy_redis.pipelines.RedisPipeline': 300,
     'joom_fetch.pipelines.MongoPipeline':400,
-    'joom_fetch.pipelines.JoomFetchPipeline': 500,
+    'joom_fetch.pipelines.JoomFetchPipeline': 401,
+    'joom_fetch.pipelines.MySQLPipeline': 402,
 }
 
 # The item pipeline serializes and stores the items in this redis key.
@@ -179,3 +184,12 @@ MONGO_URI='mongodb://122.226.65.250:18017/'
 MONGO_DATABASE='wish'
 
 USER_AGENT="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
+
+MYSQL_HOST='122.226.65.250'
+MYSQL_DB='scrapy'
+MYSQL_USER='scrapy'
+MYSQL_PASSWORD='D7CTfwAZc54r883m'
+MYSQL_PORT=18836
+
+SPLASH_URL='http://122.226.65.250:18050'
+

@@ -4,7 +4,7 @@ import scrapy, json, time
 from urllib.parse import urlsplit
 from decimal import Decimal
 from fetch.models import ItemSkuLog, JoomStore,ItemUrl
-from items import JoomFetchItem
+from items import JoomFetchItem,JoomProductItem,JoomSkuItem,JoomStoreItem
 import requests
 import redis
 from scrapy_redis.utils import bytes_to_str
@@ -67,66 +67,66 @@ class JoomSpider(RedisSpider):
         yield scrapy.Request(review_url, headers=self.headers, callback=self.item_handle,
                              meta={'r': r, 'item_url': item_url},dont_filter=True)
 
+
+
     def item_handle(self, response):
         item_url = response.meta.get('item_url')
         r = response.meta.get('r')
-        item = JoomFetchItem()
-        item['storeId'] = r.get('storeId', None)
-        item['tags'] = r.get('tags', None)
+        item = JoomProductItem()
+
         item['goods_name'] = r['name']
-        item['price'] = r['lite']['price']
-        item['msrp'] = r['lite'].get('msrPrice', 0)
+        item['price'] = Decimal(r['lite']['price']).quantize(Decimal('.01'))
+        item['msrp'] = Decimal(r['lite'].get('msrPrice', 0)).quantize(Decimal('.01'))
         item['default_img'] = r['mainImage']['images'][-1]['url']
         item['list_img'] = '|'.join(
             [gallery['payload']['images'][-1]['url'] if 'images' in gallery['payload'] else '' for gallery in
              r['gallery']])
         item['introduce'] = r['description']
+        item['average_score'] = Decimal(r['lite'].get("rating", 0)).quantize(Decimal('.1'))
         item['cate'] = r['category']['name'] if 'category' in r else 'Catalog'
         item['source_id'] = r['id']
         item['url'] = 'https://www.joom.com/en/products/' + item['source_id']
         item['create_time'] = int(time.time())
-        item['average_score'] = r['lite'].get("rating", 0)
+        item['storeId'] = r.get('storeId', None)
+        item['tags'] = json.dumps(r.get('tags')) if 'tags' in r else None
 
         # 处理与保存sku 信息
-        if r.get('variants', ''):
-            for variant in r['variants']:
-                sku_log = ItemSkuLog()
-                if "colors" in variant:
-                    sku_log.color = variant['colors'][0]['name']
-                sku_log.size = variant.get('size', '')
-                sku_log.price = variant['price']
-                sku_log.msrp = variant.get('msrPrice', Decimal(0.00))
-                if 'mainImage' in variant:
-                    sku_log.main_image = variant['mainImage']['images'][-1]['url']
-                sku_log.source_id = variant['productId']
-                sku_log.variantId = variant['id']
-                sku_log.inStock = variant['inStock']
-                sku_log.createdTimeMs = variant['createdTimeMs']
-                sku_log.publishedTimeMs = variant['publishedTimeMs']
-                sku_log.shippingPrice = variant['shipping'].get('price', None)
-                sku_log.shippingWeight = variant.get('shippingWeight', None)
-                sku_log.create_time = int(time.time())
-                sku_log.save()
+        for variant in r['variants']:
+            sku_log = JoomSkuItem()
+            if "colors" in variant:
+                sku_log['color'] = variant['colors'][0]['name']
+            sku_log['size'] = variant.get('size', '')
+            # sku_log['price']= Decimal(variant['price']).quantize(Decimal('.01'))
+            sku_log['price']= Decimal(variant['price']).quantize(Decimal('.01'))
+            sku_log['msrp'] = Decimal(variant.get('msrPrice',0)).quantize(Decimal('.01'))
+            if 'mainImage' in variant:
+                sku_log['main_image'] = variant['mainImage']['images'][-1]['url']
+            sku_log['source_id'] = variant['productId']
+            sku_log['variantId'] = variant['id']
+            sku_log['inStock'] = variant['inStock']
+            sku_log['createdTimeMs'] = variant['createdTimeMs']
+            sku_log['publishedTimeMs'] = variant['publishedTimeMs']
+            sku_log['shippingPrice'] = Decimal(variant['shipping'].get('price', 0)).quantize(Decimal('.01'))
+            sku_log['shippingWeight'] =Decimal(variant.get('shippingWeight', 0)).quantize(Decimal('.01'))
+            sku_log['create_time'] = int(time.time())
+            yield sku_log
 
-        if r.get('store', None):
-            store_data = r['store']
-            storeId = store_data.get('id')
-            if not JoomStore.objects.filter(storeId=storeId).exists():
-                store = JoomStore()
-                store.storeId = store_data.get('id')
-                store.updatedTimeMerchantMs = store_data.get('updatedTimeMerchantMs', None)
-                store.enabled = store_data.get('enabled', None)
-                store.rating = store_data.get('rating', None)
-                store.name = store_data.get('name', None)
-                positiveReviewsCount = store_data.get('positiveReviewsCount', None)
-                favoritesCount = store_data.get('favoritesCount', None)
-                productsCount = store_data.get('productsCount', None)
-                reviewsCount = store_data.get('reviewsCount', None)
-                store.positiveReviewsCount = positiveReviewsCount['value'] if positiveReviewsCount else None
-                store.favoritesCount = favoritesCount['value'] if favoritesCount else None
-                store.productsCount = productsCount['value'] if productsCount else None
-                store.reviewsCount = reviewsCount['value'] if reviewsCount else None
-                store.save()
+        store_data = r['store']
+        store = JoomStoreItem()
+        store['storeId'] = store_data.get('id')
+        store['updatedTimeMerchantMs'] = store_data.get('updatedTimeMerchantMs', None)
+        store['enabled'] = store_data.get('enabled', None)
+        store['rating'] = store_data.get('rating', None)
+        store['name'] = store_data.get('name', None)
+        positiveReviewsCount = store_data.get('positiveReviewsCount', None)
+        favoritesCount = store_data.get('favoritesCount', None)
+        productsCount = store_data.get('productsCount', None)
+        reviewsCount = store_data.get('reviewsCount', None)
+        store['positiveReviewsCount'] = positiveReviewsCount['value'] if positiveReviewsCount else None
+        store['favoritesCount'] = favoritesCount['value'] if favoritesCount else None
+        store['productsCount'] = productsCount['value'] if productsCount else None
+        store['reviewsCount'] = reviewsCount['value'] if reviewsCount else None
+        yield store
 
         # 处理星数
         reviews = json.loads(response.text)['payload']
@@ -150,3 +150,4 @@ class JoomSpider(RedisSpider):
         ItemUrl.objects.filter(url_str=item_url).update(state=2)
 
         yield item
+

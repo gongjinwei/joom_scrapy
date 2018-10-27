@@ -165,3 +165,4 @@ class FetchThread(Thread):
             msrp=Decimal(0.00)
 
         return price,msrp
+

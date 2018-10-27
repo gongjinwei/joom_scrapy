@@ -43,7 +43,7 @@ class ItemLog(models.Model):
     goods_name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     msrp = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.00))
-    sale_num = models.IntegerField(default=0)
+    sale_num = models.IntegerField(default=0,null=True)
     default_img = models.CharField(max_length=255, blank=True, null=True)
     list_img = models.TextField(blank=True, null=True)
     introduce = models.TextField(blank=True, null=True)
@@ -72,7 +72,7 @@ class ItemLog(models.Model):
 #     task_id = models.CharField(max_length=40)
 
 class JoomStore(models.Model):
-    storeId = models.CharField(max_length=50,null=True)
+    storeId = models.CharField(max_length=50,unique=True)
     updatedTimeMerchantMs = models.BigIntegerField(null=True)
     enabled=models.BooleanField(null=True)
     enabledByMerchant=models.BooleanField(null=True)
