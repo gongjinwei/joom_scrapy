@@ -133,3 +133,62 @@ class JoomSkuItem(scrapy.Item):
                 """ % (','.join(self.keys()))
         params = (self[i] for i in self)
         return insert_sql.format(','.join(['%s'] * len(self))), params
+
+class WishProductInfoItem(scrapy.Item):
+    is_new = scrapy.Field()
+    goods_name = scrapy.Field()
+    sale_num = scrapy.Field()
+    default_img = scrapy.Field()
+    list_img = scrapy.Field()
+    introduce = scrapy.Field()
+    source_id = scrapy.Field()
+    url = scrapy.Field()
+    tags = scrapy.Field()
+    create_time = scrapy.Field()
+    enabled = scrapy.Field()
+    price = scrapy.Field()
+    shipping = scrapy.Field()
+    msrp = scrapy.Field()
+    variation_id = scrapy.Field()
+    merchant_id = scrapy.Field()
+    merchant_name = scrapy.Field()
+    size_id = scrapy.Field()
+    color_id = scrapy.Field()
+    extra_photo_sequence_id = scrapy.Field()
+    keywords = scrapy.Field()
+    num_wishes = scrapy.Field()
+    average_score = scrapy.Field()
+    rating_count = scrapy.Field()
+    currently_viewing_nums = scrapy.Field()
+    rating_size_num=scrapy.Field()
+    rating_size_summary=scrapy.Field()
+
+    def get_insert_sql(self):
+        insert_sql = """
+                    INSERT INTO wish_new_item(%s)
+                    VALUES ({0})
+                    """ % (','.join(self.keys()))
+        params = (self[i] for i in self)
+        return insert_sql.format(','.join(['%s'] * len(self))), params
+
+
+class WishSkuNewItem(scrapy.Item):
+    source_id = scrapy.Field()
+    color = scrapy.Field()
+    size = scrapy.Field()
+    enabled = scrapy.Field()
+    variantId = scrapy.Field()
+    price = scrapy.Field()
+    msrp = scrapy.Field()
+    shippingPrice = scrapy.Field()
+    main_image = scrapy.Field()
+    extra_photo_sequence_id = scrapy.Field()
+    create_time = scrapy.Field()
+
+    def get_insert_sql(self):
+        insert_sql = """
+                    INSERT INTO wish_new_item_sku(%s)
+                    VALUES ({0})
+                    """ % (','.join(self.keys()))
+        params = (self[i] for i in self)
+        return insert_sql.format(','.join(['%s'] * len(self))), params

@@ -2,13 +2,10 @@
 
 import pymongo
 from twisted.enterprise import adbapi
-from twisted.internet import reactor
 from MySQLdb.cursors import DictCursor
 import datetime, time, json
 from decimal import Decimal
-from threading import Thread
-from queue import Queue
-
+import MySQLdb
 dbparams = dict(
     host='122.226.65.250',
     db='cjdn_newyiliao',
@@ -18,32 +15,37 @@ dbparams = dict(
     charset='utf8mb4',
     cursorclass=DictCursor,
     use_unicode=True)
-dbpool = adbapi.ConnectionPool('MySQLdb', **dbparams)
+connect = MySQLdb.connect(**dbparams)
+cursor = connect.cursor()
+# dbpool = adbapi.ConnectionPool('MySQLdb', **dbparams)
 
 
+# class WishPipeline(object):
+#
+#     def process_item(self, item):
+#         query = dbpool.runInteraction(self.do_insert, item)
+#
+#         query.addErrback(self.handle_error, item)
+#         return query
+#
+#     def do_insert(self, cursor, item):
+#         insert_sql, params = item.get_insert_sql()
+#         cursor.execute(insert_sql, params)
+#
+#     def handle_error(self, failure, item):
+#         '''
+#         处理异步插入数据库错误
+#         :param failure:
+#         :return:
+#         '''
+#         print(failure, item)
+#
+#
+# wish_pipeline = WishPipeline()
 
-class WishPipeline(object):
-
-    def process_item(self, item):
-        query = dbpool.runInteraction(self.do_insert, item)
-
-        query.addErrback(self.handle_error, item)
-        return query
-
-    def do_insert(self, cursor, item):
-        insert_sql, params = item.get_insert_sql()
-        cursor.execute(insert_sql, params)
-
-    def handle_error(self, failure, item):
-        '''
-        处理异步插入数据库错误
-        :param failure:
-        :return:
-        '''
-        print(failure, item)
-
-
-wish_pipeline = WishPipeline()
+def do_insert(item):
+    insert_sql, params = item.get_insert_sql()
+    cursor.execute(insert_sql, params)
 
 mg = pymongo.MongoClient('122.226.65.250', 18017)
 db = mg.wish_api
@@ -55,7 +57,7 @@ class Item(dict):
 
     def get_insert_sql(self):
         insert_sql = """
-                Insert INTO %s(%s)
+                INSERT INTO %s(%s)
                 VALUES ({0})
                 """ % (self.table_name, ','.join(self.keys()))
         params = (self[i] for i in self)
@@ -63,14 +65,14 @@ class Item(dict):
 
 
 class WishItem(Item):
-    table_name = 'wish_shop_item'
+    table_name = 'wish_shop_item_s1'
 
 
 class WishSkuItem(Item):
-    table_name = 'wish_shop_item_sku'
+    table_name = 'wish_shop_item_sku_s1'
 
 
-shops = {512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533,
+shops = {512, 513,514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533,
          534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 32, 33, 544, 35, 545, 546, 547, 548, 549, 550, 551, 552, 553,
          554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 567, 568, 569, 571, 570, 573, 572, 574, 575, 576,
          577, 578, 579, 580, 581, 582, 584, 583, 585, 586, 587, 588, 589, 590, 591, 593, 594, 595, 596, 597, 598, 599,
@@ -95,7 +97,7 @@ def process_info(info):
     item_p['last_updated'] = datetime.datetime.strptime(info['last_updated'], '%m-%d-%YT%H:%M:%S')
     item_p['tags'] = json.dumps(info['tags'])
     item_p['parent_sku'] = info['parent_sku']
-    item_p['is_promoted'] = bool(info['is_promoted'])
+    item_p['is_promoted'] = eval(info['is_promoted'].strip())
     item_p['review_status'] = info['review_status']
     item_p['number_saves'] = info['number_saves']
     item_p['shop_id'] = info['shop_id']
@@ -105,6 +107,8 @@ def process_info(info):
     min_variant = min(variants, key=lambda x: float(x['Variant']['price']))
     item_p['price'] = Decimal(min_variant['Variant']['price']).quantize(Decimal('.01'))
     item_p['msrp'] = Decimal(min_variant['Variant'].get('msrp', 0)).quantize(Decimal('.1'))
+    do_insert(item_p)
+    connect.commit()
     for v in variants:
         variant = v['Variant']
         sku = WishSkuItem()
@@ -112,7 +116,7 @@ def process_info(info):
         sku['color'] = variant.get('color', None)
         sku['size'] = variant.get('size', None)
         sku['price'] = Decimal(variant['price']).quantize(Decimal('.01'))
-        sku['enabled'] = bool(variant['enabled'])
+        sku['enabled'] = eval(variant['enabled'].strip())
         sku['all_images'] = variant['all_images']
         sku['sku'] = variant['sku']
         sku['variantId'] = variant['id']
@@ -121,16 +125,21 @@ def process_info(info):
         sku['shippingPrice'] = Decimal(shipping if shipping else 0).quantize(Decimal('.01'))
         sku['shipping_time'] = variant['shipping_time']
         sku['create_time'] = int(time.time())
-        wish_pipeline.process_item(sku)
-    wish_pipeline.process_item(item_p)
+        do_insert(sku)
+    connect.commit()
+    print('product %s complete, it has %s skus' % (info['id'],len(variants)))
 
 
 if __name__=='__main__':
-    dbpool.start()
+    # dbpool.start()
     for shop in shops:
-        docs = collection.find({'shop_id': shop})
+        docs = collection.find({'shop_id': shop,'number_sold':'0'})
         for info in docs:
-            process_info(info)
-    dbpool.close()
+            try:
+                process_info(info)
+            except:
+                print(info['id']+'\r\n')
+    # dbpool.close()
+    connect.close()
     mg.close()
     # reactor.run()

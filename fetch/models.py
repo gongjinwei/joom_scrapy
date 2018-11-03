@@ -195,3 +195,100 @@ class XiciProxy(models.Model):
 
     class Meta:
         managed = False
+
+
+class WishNewItem(models.Model):
+    goods_name = models.CharField(max_length=1024)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    msrp = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_num = models.IntegerField(blank=True, null=True)
+    default_img = models.CharField(max_length=255, blank=True, null=True)
+    list_img = models.TextField(blank=True, null=True)
+    introduce = models.TextField(blank=True, null=True)
+    score1 = models.IntegerField(blank=True, null=True)
+    score2 = models.IntegerField(blank=True, null=True)
+    score3 = models.IntegerField(blank=True, null=True)
+    score4 = models.IntegerField(blank=True, null=True)
+    score5 = models.IntegerField(blank=True, null=True)
+    average_score = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    cate = models.CharField(max_length=255, blank=True, null=True)
+    url = models.CharField(max_length=255)
+    create_time = models.IntegerField()
+    rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    shop_id = models.IntegerField(blank=True, null=True)
+    source_id = models.CharField(max_length=255, blank=True, null=True)
+    date_uploaded = models.DateField(blank=True, null=True)
+    is_promoted = models.IntegerField(blank=True, null=True)
+    tags = models.TextField(blank=True, null=True)
+    last_updated = models.DateTimeField(blank=True, null=True)
+    shipping = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    weight = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    brand = models.CharField(max_length=255, blank=True, null=True)
+    upc = models.CharField(max_length=255, blank=True, null=True)
+    landing_page_url = models.CharField(max_length=255, blank=True, null=True)
+    owner_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    enabled = models.IntegerField(blank=True, null=True)
+    py_sku = models.CharField(max_length=50, blank=True, null=True)
+    user_ids = models.CharField(max_length=255, blank=True, null=True)
+    variation_id = models.CharField(max_length=50, blank=True, null=True)
+    merchant_id = models.CharField(max_length=50, blank=True, null=True)
+    merchant_name = models.CharField(max_length=255, blank=True, null=True)
+    size_id = models.CharField(max_length=50, blank=True, null=True)
+    color_id = models.CharField(max_length=50, blank=True, null=True)
+    extra_photo_sequence_id = models.IntegerField(blank=True, null=True)
+    keywords = models.TextField(blank=True, null=True)
+    num_wishes = models.IntegerField(blank=True, null=True)
+    rating_count = models.IntegerField(blank=True, null=True)
+    currently_viewing_nums = models.IntegerField(blank=True, null=True)
+    rating_size_summary = models.TextField(blank=True, null=True)
+    rating_size_num = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'wish_new_item'
+
+
+class WishNewItemSku(models.Model):
+    source_id = models.CharField(max_length=255, blank=True, null=True)
+    color = models.CharField(max_length=255, blank=True, null=True)
+    size = models.CharField(max_length=255, blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    msrp = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    main_image = models.CharField(max_length=255, blank=True, null=True)
+    create_time = models.IntegerField(blank=True, null=True)
+    variantid = models.CharField(db_column='variantId', max_length=50, blank=True,
+                                 null=True)  # Field name made lowercase.
+    inventory = models.IntegerField(blank=True, null=True)
+    shippingprice = models.DecimalField(db_column='shippingPrice', max_digits=10, decimal_places=2, blank=True,
+                                        null=True)  # Field name made lowercase.
+    enabled = models.IntegerField(blank=True, null=True)
+    extra_photo_sequence_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'wish_new_item_sku'
+
+
+class WishNewProduct(models.Model):
+    is_new = models.IntegerField(blank=True, null=True)
+    num_bought = models.IntegerField(blank=True, null=True)
+    product_id = models.CharField(unique=True, max_length=50)
+    true_tag_ids = models.TextField(blank=True, null=True)
+    variation_id = models.CharField(max_length=50, blank=True, null=True)
+    merchant_id = models.CharField(max_length=50, blank=True, null=True)
+    contest_page_picture = models.TextField(blank=True, null=True)
+    merchant_name = models.CharField(max_length=255, blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    retail_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    generation_time = models.BigIntegerField(blank=True, null=True)
+    shipping = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    sequence_id = models.IntegerField(blank=True, null=True)
+    color_id = models.CharField(max_length=30, blank=True, null=True)
+    size_id = models.CharField(max_length=30, blank=True, null=True)
+    cache_buster = models.CharField(max_length=50, blank=True, null=True)
+    total_inventory = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'wish_new_product'

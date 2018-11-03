@@ -76,19 +76,19 @@ WSGI_APPLICATION = 'joom_scrapy.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tracking',
-        'USER': 'root',
-        'PASSWORD': 'NewDaMo2018',
-        'HOST': '121.43.190.139',
-        'PORT': 3306,
-        'OPTIONS':{
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
-    },
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'tracking',
+#         'USER': 'root',
+#         'PASSWORD': 'NewDaMo2018',
+#         'HOST': '121.43.190.139',
+#         'PORT': 3306,
+#         'OPTIONS':{
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+#         }
+#     },
+# }
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
@@ -102,6 +102,20 @@ DATABASES = {
 #         }
 #     },
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cjdn_newyiliao',
+        'USER': 'cjdn_newyiliao',
+        'PASSWORD': 'GPnGmibX6QGGzbDA',
+        'HOST': '122.226.65.250',
+        'PORT': 39306,
+        'OPTIONS':{
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
