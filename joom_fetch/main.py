@@ -15,11 +15,11 @@ process = CrawlerProcess(get_project_settings())
 # process.crawl('wish_rating')
 # process.crawl('xici')
 
-for _ in range(5):
+for _ in range(1):
 #     process.crawl('wish')
 #     process.crawl('wish_api')
-    process.crawl('joom')
-#     process.crawl('vova')
+#     process.crawl('joom')
+    process.crawl('joom_cate')
 process.start()
 
 # execute(['scrapy', 'crawl', 'wish'])

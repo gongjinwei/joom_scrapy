@@ -292,3 +292,56 @@ class WishNewProduct(models.Model):
     class Meta:
         managed = False
         db_table = 'wish_new_product'
+
+
+class WishShopItemUrl(models.Model):
+    url_str = models.TextField(blank=True, null=True)
+    source_id = models.CharField(max_length=255, blank=True, null=True)
+    create_time = models.IntegerField(blank=True, null=True)
+    state = models.IntegerField(blank=True, null=True)
+    item_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'wish_shop_item_url'
+
+
+class JoomCateInfo(models.Model):
+    cate_id = models.CharField(max_length=50, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    url = models.CharField(max_length=255, blank=True, null=True)
+    state = models.IntegerField(blank=True, null=True)
+    parent_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'joom_cate_info'
+
+
+class JoomCateProduct(models.Model):
+    goods_name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    msrp = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    sale_num = models.IntegerField(blank=True, null=True)
+    default_img = models.CharField(max_length=255, blank=True, null=True)
+    list_img = models.TextField(blank=True, null=True)
+    introduce = models.TextField(blank=True, null=True)
+    score1 = models.IntegerField(blank=True, null=True)
+    score2 = models.IntegerField(blank=True, null=True)
+    score3 = models.IntegerField(blank=True, null=True)
+    score4 = models.IntegerField(blank=True, null=True)
+    score5 = models.IntegerField(blank=True, null=True)
+    average_score = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
+    cate = models.CharField(max_length=255)
+    source_id = models.CharField(max_length=255)
+    url = models.CharField(max_length=255)
+    create_time = models.IntegerField()
+    date_uploaded = models.IntegerField(blank=True, null=True)
+    storeid = models.CharField(db_column='storeId', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    tags = models.TextField(blank=True, null=True)
+    status = models.IntegerField(blank=True, null=True)
+    categoryid = models.CharField(db_column='categoryId', max_length=80, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'joom_cate_product'

@@ -3,12 +3,13 @@
 import scrapy, json, time
 from urllib.parse import urlsplit
 from decimal import Decimal
-from fetch.models import ItemSkuLog, JoomStore,ItemUrl
-from items import JoomFetchItem,JoomProductItem,JoomSkuItem,JoomStoreItem
+from fetch.models import ItemUrl
+from joom_fetch.items import JoomProductItem,JoomSkuItem,JoomStoreItem
 import requests
 import redis
 from scrapy_redis.utils import bytes_to_str
 from scrapy_redis.spiders import RedisSpider
+from django.utils.crypto import get_random_string
 
 client = redis.StrictRedis('122.226.65.250',18003)
 
@@ -28,9 +29,9 @@ class JoomSpider(RedisSpider):
         return scrapy.Request(url, headers=self.headers, meta={'item_url': item_url, 'source_id': source_id},
                              callback=self.parse,dont_filter=True)
 
-    def get_authorization(self):
+    def get_authorization(self,not_valid=False):
         authorization = client.get('joom_authorization')
-        if not authorization:
+        if not authorization or not_valid:
 
             init_url = "https://www.joom.com/tokens/init"
             r = requests.post(init_url, verify=False)
@@ -38,7 +39,7 @@ class JoomSpider(RedisSpider):
                 authorization = r.json()["payload"]["accessToken"]
                 headers = {
                     'Authorization': "Bearer %s" % authorization,
-                    'X-API-Token': '0NQPzyCD1fALL4IjrNyvR84C9ewCcUkk'
+                    'X-API-Token': 'qMprb1boKjfwMWXbkZQx7y5I9cztn9oc'
                 }
                 client.set('joom_authorization', json.dumps(headers))
                 self.headers = headers
@@ -51,28 +52,38 @@ class JoomSpider(RedisSpider):
         # 处理非200返回
 
         if response.status == 401:
-            client.delete('joom_authorization')
-            self.get_authorization()
-            ItemUrl.objects.filter(url_str=item_url).update(state=3)
-            return
+            self.get_authorization(not_valid=True)
+            return [response.request]
         elif response.status > 200:
             # 处理url状态
             ItemUrl.objects.filter(url_str=item_url).update(state=3)
             return
 
         r = json.loads(response.body)['payload']
+        if r['id'] != source_id:
+            self.get_authorization(not_valid=True)
+            return [response.request]
 
         review_url = 'https://api.joom.com/1.1/products/%s/reviews/filters?currency=USD&language=en-US' % source_id
 
-        yield scrapy.Request(review_url, headers=self.headers, callback=self.item_handle,
+        return scrapy.Request(review_url, headers=self.headers, callback=self.item_handle,
                              meta={'r': r, 'item_url': item_url},dont_filter=True)
-
-
 
     def item_handle(self, response):
         item_url = response.meta.get('item_url')
+        # r是产品信息返回的json
         r = response.meta.get('r')
-        item = JoomProductItem()
+        reviews_data=json.loads(response.body)['payload']
+        return self.make_item(r,reviews_data,JoomProductItem,JoomSkuItem,state_change_class=ItemUrl,state_change_arg='url_str',state_change_value=item_url)
+
+
+    @classmethod
+    def make_item(cls,r,reviews_data,ProductItemClass,SkuItemClass,state_change_class=None,state_change_arg=None,state_change_value=None):
+        """
+        :param r: 产品信息返回的json数据
+        :param reviews_data: 评价信息返回的json数据
+        """
+        item = ProductItemClass()
 
         item['goods_name'] = r['name']
         item['price'] = Decimal(r['lite']['price']).quantize(Decimal('.01'))
@@ -85,14 +96,19 @@ class JoomSpider(RedisSpider):
         item['average_score'] = Decimal(r['lite'].get("rating", 0)).quantize(Decimal('.1'))
         item['cate'] = r['category']['name'] if 'category' in r else 'Catalog'
         item['source_id'] = r['id']
-        item['url'] = 'https://www.joom.com/en/products/' + item['source_id']
+        item['url'] = 'https://www.joom.com/en/products/' + r['id']
         item['create_time'] = int(time.time())
         item['storeId'] = r.get('storeId', None)
-        item['tags'] = json.dumps(r.get('tags')) if 'tags' in r else None
+        item['tags'] ='|'.join([tag['nameEng'] for tag in (r['nameExt']['tags'] if "nameExt" in r and "tags" in r['nameExt'] else [])])
+        item['categoryId']=r.get('categoryId','')
+        item['dangerousKind']=r.get('dangerousKind','')
+        variants = r['variants']
+        min_time_variant = min(variants, key=lambda x: ['createdTimeMs'])
+        item['date_uploaded']= int(min_time_variant['createdTimeMs']/1000)
 
         # 处理与保存sku 信息
         for variant in r['variants']:
-            sku_log = JoomSkuItem()
+            sku_log = SkuItemClass()
             if "colors" in variant:
                 sku_log['color'] = variant['colors'][0]['name']
             sku_log['size'] = variant.get('size', '')
@@ -109,8 +125,11 @@ class JoomSpider(RedisSpider):
             sku_log['shippingPrice'] = Decimal(variant['shipping'].get('price', 0)).quantize(Decimal('.01'))
             sku_log['shippingWeight'] =Decimal(variant.get('shippingWeight', 0)).quantize(Decimal('.01'))
             sku_log['create_time'] = int(time.time())
+            sku_log['status']=1
             yield sku_log
 
+        # 暂停采集店铺信息
+        '''
         store_data = r['store']
         store = JoomStoreItem()
         store['storeId'] = store_data.get('id')
@@ -127,11 +146,11 @@ class JoomSpider(RedisSpider):
         store['productsCount'] = productsCount['value'] if productsCount else None
         store['reviewsCount'] = reviewsCount['value'] if reviewsCount else None
         yield store
+        '''
 
         # 处理星数
-        reviews = json.loads(response.text)['payload']
-        if 'items' in reviews:
-            review_items = reviews['items']
+        if 'items' in reviews_data:
+            review_items = reviews_data['items']
             star_match = {
                 "fiveStars": 5,
                 "fourStars": 4,
@@ -145,9 +164,8 @@ class JoomSpider(RedisSpider):
                     star_int = star_match[review_item['id']]
                     index = 'score%s' % star_int
                     item[index] = review_item['count']['value']
-
-        # 处理url状态
-        ItemUrl.objects.filter(url_str=item_url).update(state=2)
-
+        if state_change_class:
+            # 处理url_状态
+            state_change_class.objects.filter(**{state_change_arg:state_change_value}).update(state=2)
         yield item
 

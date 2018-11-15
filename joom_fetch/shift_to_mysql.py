@@ -18,7 +18,7 @@ from fetch.models import WishCrawlProduct,WishVariantItem
 # def hand_post(index_from,index_to):[index_from:index_to]
 for post in collection.find():
     product = WishCrawlProduct()
-    product.goods_name = post['name']
+    product.goods_name = post['name'][:255]
     product.sale_num = post['number_sold']
     product.default_img = post.get('main_image', None)
     product.list_img = post.get('extra_images', None)

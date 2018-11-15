@@ -2,7 +2,7 @@
 import datetime
 import scrapy
 from scrapy_redis.spiders import RedisSpider
-from items import XiciDeferItem,XiciLoader
+from items import XiciDeferItem,TakeFirstLoader
 from scrapy_redis.utils import bytes_to_str
 
 
@@ -19,7 +19,7 @@ class XiciSpider(RedisSpider):
         if response.status==200:
             for i in range(len(response.xpath('//table/tr'))-1):
 
-                loader =XiciLoader(item=XiciDeferItem(),response=response)
+                loader =TakeFirstLoader(item=XiciDeferItem(),response=response)
                 loader.add_xpath('ip','//table/tr[{0}]/td[2]/text()'.format(i+2))
                 loader.add_xpath('port','//table/tr[{0}]/td[3]/text()'.format(i+2))
                 loader.add_xpath('address','//table/tr[{0}]/td[4]/a/text()'.format(i+2))
