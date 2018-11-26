@@ -141,8 +141,8 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 # Store scraped item in redis for post-processing.
 ITEM_PIPELINES = {
     # 'scrapy_redis.pipelines.RedisPipeline': 300,
-    'joom_fetch.pipelines.MongoPipeline':400,
-    'joom_fetch.pipelines.JoomFetchPipeline': 401,
+    # 'joom_fetch.pipelines.MongoPipeline':400,
+    # 'joom_fetch.pipelines.JoomFetchPipeline': 401,
     'joom_fetch.pipelines.MySQLPipeline': 402,
 }
 
@@ -185,11 +185,16 @@ MONGO_DATABASE='wish'
 
 USER_AGENT="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
 
-MYSQL_HOST='122.226.65.250'
-MYSQL_DB='scrapy'
-MYSQL_USER='scrapy'
-MYSQL_PASSWORD='D7CTfwAZc54r883m'
-MYSQL_PORT=18836
+# MYSQL_HOST='122.226.65.250'
+# MYSQL_DB='scrapy'
+# MYSQL_USER='scrapy'
+# MYSQL_PASSWORD='D7CTfwAZc54r883m'
+# MYSQL_PORT=18836
 
 SPLASH_URL='http://122.226.65.250:18050'
 
+MYSQL_HOST='122.226.65.250'
+MYSQL_DB='cjdn_newyiliao'
+MYSQL_USER='cjdn_newyiliao'
+MYSQL_PASSWORD='GPnGmibX6QGGzbDA'
+MYSQL_PORT=39306

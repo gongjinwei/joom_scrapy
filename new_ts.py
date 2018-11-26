@@ -1,4 +1,5 @@
 # -*- coding:UTF-8 -*-
+import requests
 
 def hello():
     print('Hello from the reactor loop!')

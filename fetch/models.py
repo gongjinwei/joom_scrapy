@@ -191,10 +191,13 @@ class XiciProxy(models.Model):
     available = models.BooleanField(null=True)
     create_time = models.DateTimeField(auto_now_add=True)
     check_time = models.DateTimeField(null=True)
-    response_time = models.FloatField(null=True)
+    wish_response_time = models.FloatField(null=True)
+    joom_response_time = models.FloatField(null=True)
+    joom_access_token = models.TextField(null=True)
 
     class Meta:
         managed = False
+        db_table = 'fetch_xiciproxy'
 
 
 class WishNewItem(models.Model):

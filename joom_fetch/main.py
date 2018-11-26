@@ -19,7 +19,8 @@ for _ in range(1):
 #     process.crawl('wish')
 #     process.crawl('wish_api')
 #     process.crawl('joom')
-    process.crawl('joom_cate')
+#     process.crawl('joom_cate')
+    process.crawl('xici')
 process.start()
 
 # execute(['scrapy', 'crawl', 'wish'])

@@ -11,15 +11,18 @@ from fetch.models import ItemUrl,WishShop,Shop,WishNewProduct,WishShopItemUrl,Jo
 
 client = redis.StrictRedis('122.226.65.250',18003)
 
-
-client.lpush('joom:start_urls',*ItemUrl.objects.filter(state=0).distinct().values_list('url_str',flat=True))
-ItemUrl.objects.filter(state=0).update(state=1)
+# if ItemUrl.objects.filter(state=0).exists():
+#     client.lpush('joom:start_urls',*ItemUrl.objects.filter(state=0).distinct().values_list('url_str',flat=True))
+#     ItemUrl.objects.filter(state=0).update(state=1)
+client.rpush('joom:start_urls',*ItemUrl.objects.filter(state=1).distinct().values_list('url_str',flat=True))
+# ItemUrl.objects.filter(state__lte=1).update(state=1)
+# JoomCateInfo.objects.filter(state=2).update(state=1)
+# client.lpush('joom_cate:start_urls',*JoomCateInfo.objects.filter(state=1).values_list('cate_id',flat=True))
 
 
 # for item in JoomCateProduct.objects.all().values('source_id'):
 #     client.lpush('joom_tmp:start_urls',item['source_id'])
-# if not client.exists('joom:start_urls'):
-# ItemUrl.objects.filter(state=2).update(state=1)
+
 # now = datetime.datetime.now()
 # if now.hour==9 and now.minute<50 and not client.exists('joom:start_urls'):
 #     for item in ItemUrl.objects.filter(state=1).values('url_str'):

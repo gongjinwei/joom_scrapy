@@ -102,7 +102,7 @@ class XiciDeferItem(scrapy.Item):
 
     def get_insert_sql(self):
         insert_sql = """
-                REPLACE INTO xici(%s)
+                REPLACE INTO fetch_xiciproxy(%s)
                 VALUES ({0})
                 """ % (','.join(self.keys()))
         params = (self[i] for i in self)
